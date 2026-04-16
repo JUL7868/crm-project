@@ -1,162 +1,140 @@
-<!-- FILE: /app/templates/dashboard.html -->
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM Dashboard</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-100 text-gray-900">
 
-<header class="bg-white shadow-md sticky top-0 z-10">
-    <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-semibold">CRM Dashboard</h1>
-        <a href="/add" class="text-sm px-3 py-2 bg-blue-600 text-white rounded-lg">+ Add Prospect</a>
-    </div>
-</header>
+<!-- NAVBAR -->
+<div class="bg-white shadow-sm p-4 flex justify-between items-center">
+    <h1 class="text-xl font-semibold">CRM Dashboard</h1>
 
-<main class="max-w-5xl mx-auto px-4 py-6 space-y-8">
+    <div class="flex gap-2">
+        <a href="/" class="px-3 py-1 bg-gray-200 rounded">Dashboard</a>
+        <a href="/add_prospect" class="px-3 py-1 bg-blue-600 text-white rounded">+ Add Prospect</a>
+    </div>
+</div>
+
+<div class="max-w-4xl mx-auto p-4">
 
     <!-- OVERDUE -->
-    <section>
-        <div class="flex justify-between items-center mb-3">
-            <h2 class="text-lg font-semibold text-red-600">Overdue ({{ overdue|length }})</h2>
-        </div>
+    <h2 class="text-lg font-semibold text-red-600 mt-6 mb-2">
+        Overdue ({{ overdue|length }})
+    </h2>
 
-        {% if overdue %}
-            {% for p in overdue[:5] %}
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-500 mb-3">
-                
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="font-medium">{{ p.name }}</p>
-                        <p class="text-sm text-gray-500">{{ p.company or "No company" }}</p>
-                        <p class="text-xs text-gray-500">Follow-up: {{ p.follow_up }}</p>
+    {% for p in overdue %}
+    <div class="bg-white rounded-lg shadow mb-3 border-l-4 border-red-500">
+        
+        <!-- CLICKABLE AREA -->
+        <a href="/prospect/{{ p.id }}" class="block p-4 hover:bg-gray-50 transition">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="font-semibold text-lg">{{ p.name }}</div>
+                    <div class="text-sm text-gray-500">{{ p.company or "No company" }}</div>
+                    <div class="text-sm text-red-600 mt-1">
+                        Follow-up: {{ p.follow_up }}
                     </div>
                 </div>
 
-                <!-- ACTIONS -->
-                <div class="flex gap-2 mt-3">
-
-                    <!-- Mark Contacted -->
-                    <form method="POST" action="/quick_contact/{{ p.id }}" class="w-1/2">
-                        <button class="w-full bg-green-600 text-white py-1 rounded-lg text-sm">
-                            ✓ Contacted
-                        </button>
-                    </form>
-
-                    <!-- Snooze -->
-                    <form method="POST" action="/quick_snooze/{{ p.id }}" class="w-1/2">
-                        <button class="w-full bg-yellow-500 text-white py-1 rounded-lg text-sm">
-                            +1 Day
-                        </button>
-                    </form>
-
+                <div class="text-xs text-red-500 font-medium">
+                    OVERDUE
                 </div>
             </div>
-            {% endfor %}
+        </a>
 
-            {% if overdue|length > 5 %}
-                <p class="text-sm text-gray-500">+ {{ overdue|length - 5 }} more</p>
-            {% endif %}
+        <!-- QUICK ACTION -->
+        <div class="px-4 pb-3">
+            <a href="/quick_snooze/{{ p.id }}"
+               class="text-sm text-blue-600 hover:underline">
+               Snooze 1 Day
+            </a>
+        </div>
+    </div>
+    {% endfor %}
 
-        {% else %}
-            <div class="bg-white p-4 rounded-xl text-gray-500 text-sm">
-                No overdue prospects.
-            </div>
-        {% endif %}
-    </section>
+    {% if not overdue %}
+    <div class="text-gray-500 text-sm mb-4">No overdue follow-ups.</div>
+    {% endif %}
+
 
     <!-- UPCOMING -->
-    <section>
-        <h2 class="text-lg font-semibold text-yellow-600 mb-3">Upcoming ({{ upcoming|length }})</h2>
+    <h2 class="text-lg font-semibold text-yellow-600 mt-6 mb-2">
+        Upcoming ({{ upcoming|length }})
+    </h2>
 
-        {% if upcoming %}
-            {% for p in upcoming[:5] %}
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-400 mb-3">
-                
+    {% for p in upcoming %}
+    <div class="bg-white rounded-lg shadow mb-3 border-l-4 border-yellow-400">
+        
+        <a href="/prospect/{{ p.id }}" class="block p-4 hover:bg-gray-50 transition">
+            <div class="flex justify-between items-center">
                 <div>
-                    <p class="font-medium">{{ p.name }}</p>
-                    <p class="text-sm text-gray-500">{{ p.company or "No company" }}</p>
-                    <p class="text-xs text-gray-500">Follow-up: {{ p.follow_up }}</p>
+                    <div class="font-semibold text-lg">{{ p.name }}</div>
+                    <div class="text-sm text-gray-500">{{ p.company or "No company" }}</div>
+                    <div class="text-sm text-yellow-600 mt-1">
+                        Follow-up: {{ p.follow_up }}
+                    </div>
                 </div>
 
-                <div class="flex gap-2 mt-3">
-
-                    <form method="POST" action="/quick_contact/{{ p.id }}" class="w-1/2">
-                        <button class="w-full bg-green-600 text-white py-1 rounded-lg text-sm">
-                            ✓ Done
-                        </button>
-                    </form>
-
-                    <form method="POST" action="/quick_snooze/{{ p.id }}" class="w-1/2">
-                        <button class="w-full bg-yellow-500 text-white py-1 rounded-lg text-sm">
-                            +1 Day
-                        </button>
-                    </form>
-
+                <div class="text-xs text-yellow-500 font-medium">
+                    UPCOMING
                 </div>
             </div>
-            {% endfor %}
+        </a>
 
-            {% if upcoming|length > 5 %}
-                <p class="text-sm text-gray-500">+ {{ upcoming|length - 5 }} more</p>
-            {% endif %}
+        <div class="px-4 pb-3">
+            <a href="/quick_snooze/{{ p.id }}"
+               class="text-sm text-blue-600 hover:underline">
+               Snooze 1 Day
+            </a>
+        </div>
+    </div>
+    {% endfor %}
 
-        {% else %}
-            <div class="bg-white p-4 rounded-xl text-gray-500 text-sm">
-                No upcoming follow-ups.
-            </div>
-        {% endif %}
-    </section>
+    {% if not upcoming %}
+    <div class="text-gray-500 text-sm mb-4">No upcoming follow-ups.</div>
+    {% endif %}
+
 
     <!-- NO FOLLOW-UP -->
-    <section>
-        <h2 class="text-lg font-semibold text-gray-600 mb-3">No Follow-Up ({{ no_follow|length }})</h2>
+    <h2 class="text-lg font-semibold text-gray-700 mt-6 mb-2">
+        No Follow-Up ({{ no_follow|length }})
+    </h2>
 
-        {% if no_follow %}
-            {% for p in no_follow[:5] %}
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-gray-400 mb-3">
-                
+    {% for p in no_follow %}
+    <div class="bg-white rounded-lg shadow mb-3 border-l-4 border-gray-300">
+        
+        <a href="/prospect/{{ p.id }}" class="block p-4 hover:bg-gray-50 transition">
+            <div class="flex justify-between items-center">
                 <div>
-                    <p class="font-medium">{{ p.name }}</p>
-                    <p class="text-sm text-gray-500">{{ p.company or "No company" }}</p>
+                    <div class="font-semibold text-lg">{{ p.name }}</div>
+                    <div class="text-sm text-gray-500">{{ p.company or "No company" }}</div>
+                    <div class="text-sm text-gray-500 mt-1">
+                        No follow-up scheduled
+                    </div>
                 </div>
 
-                <div class="flex gap-2 mt-3">
-
-                    <form method="POST" action="/quick_contact/{{ p.id }}" class="w-1/2">
-                        <button class="w-full bg-green-600 text-white py-1 rounded-lg text-sm">
-                            ✓ Contacted
-                        </button>
-                    </form>
-
-                    <form method="POST" action="/quick_snooze/{{ p.id }}" class="w-1/2">
-                        <button class="w-full bg-blue-600 text-white py-1 rounded-lg text-sm">
-                            Set +1 Day
-                        </button>
-                    </form>
-
+                <div class="text-xs text-gray-400 font-medium">
+                    NO FOLLOW-UP
                 </div>
             </div>
-            {% endfor %}
+        </a>
 
-            {% if no_follow|length > 5 %}
-                <p class="text-sm text-gray-500">+ {{ no_follow|length - 5 }} more</p>
-            {% endif %}
+        <div class="px-4 pb-3">
+            <a href="/quick_snooze/{{ p.id }}"
+               class="text-sm text-blue-600 hover:underline">
+               Snooze 1 Day
+            </a>
+        </div>
+    </div>
+    {% endfor %}
 
-        {% else %}
-            <div class="bg-white p-4 rounded-xl text-gray-500 text-sm">
-                Everyone has a follow-up.
-            </div>
-        {% endif %}
-    </section>
+    {% if not no_follow %}
+    <div class="text-gray-500 text-sm">All prospects have follow-ups.</div>
+    {% endif %}
 
-</main>
+</div>
 
 </body>
 </html>

@@ -114,6 +114,24 @@
             {% endif %}
         </div>
 
+        <!-- 🔴 Danger Zone -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-red-200">
+            <h3 class="font-semibold text-red-600 mb-3">Danger Zone</h3>
+
+            <form method="POST" action="/archive_prospect/{{ p.id }}">
+                <button 
+                    type="submit"
+                    class="w-full bg-red-600 text-white py-2 rounded-lg font-medium hover:bg-red-700 transition"
+                >
+                    Archive Prospect
+                </button>
+            </form>
+
+            <p class="text-xs text-gray-500 mt-2">
+                This will remove the prospect from your active pipeline.
+            </p>
+        </div>
+
     </main>
 
 </body>
