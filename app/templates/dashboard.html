@@ -1,0 +1,162 @@
+<!-- FILE: /app/templates/dashboard.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+
+<header class="bg-white shadow-md sticky top-0 z-10">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-semibold">CRM Dashboard</h1>
+        <a href="/add" class="text-sm px-3 py-2 bg-blue-600 text-white rounded-lg">+ Add Prospect</a>
+    </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-6 space-y-8">
+
+    <!-- OVERDUE -->
+    <section>
+        <div class="flex justify-between items-center mb-3">
+            <h2 class="text-lg font-semibold text-red-600">Overdue ({{ overdue|length }})</h2>
+        </div>
+
+        {% if overdue %}
+            {% for p in overdue[:5] %}
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-500 mb-3">
+                
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-medium">{{ p.name }}</p>
+                        <p class="text-sm text-gray-500">{{ p.company or "No company" }}</p>
+                        <p class="text-xs text-gray-500">Follow-up: {{ p.follow_up }}</p>
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="flex gap-2 mt-3">
+
+                    <!-- Mark Contacted -->
+                    <form method="POST" action="/quick_contact/{{ p.id }}" class="w-1/2">
+                        <button class="w-full bg-green-600 text-white py-1 rounded-lg text-sm">
+                            ✓ Contacted
+                        </button>
+                    </form>
+
+                    <!-- Snooze -->
+                    <form method="POST" action="/quick_snooze/{{ p.id }}" class="w-1/2">
+                        <button class="w-full bg-yellow-500 text-white py-1 rounded-lg text-sm">
+                            +1 Day
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if overdue|length > 5 %}
+                <p class="text-sm text-gray-500">+ {{ overdue|length - 5 }} more</p>
+            {% endif %}
+
+        {% else %}
+            <div class="bg-white p-4 rounded-xl text-gray-500 text-sm">
+                No overdue prospects.
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- UPCOMING -->
+    <section>
+        <h2 class="text-lg font-semibold text-yellow-600 mb-3">Upcoming ({{ upcoming|length }})</h2>
+
+        {% if upcoming %}
+            {% for p in upcoming[:5] %}
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-400 mb-3">
+                
+                <div>
+                    <p class="font-medium">{{ p.name }}</p>
+                    <p class="text-sm text-gray-500">{{ p.company or "No company" }}</p>
+                    <p class="text-xs text-gray-500">Follow-up: {{ p.follow_up }}</p>
+                </div>
+
+                <div class="flex gap-2 mt-3">
+
+                    <form method="POST" action="/quick_contact/{{ p.id }}" class="w-1/2">
+                        <button class="w-full bg-green-600 text-white py-1 rounded-lg text-sm">
+                            ✓ Done
+                        </button>
+                    </form>
+
+                    <form method="POST" action="/quick_snooze/{{ p.id }}" class="w-1/2">
+                        <button class="w-full bg-yellow-500 text-white py-1 rounded-lg text-sm">
+                            +1 Day
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if upcoming|length > 5 %}
+                <p class="text-sm text-gray-500">+ {{ upcoming|length - 5 }} more</p>
+            {% endif %}
+
+        {% else %}
+            <div class="bg-white p-4 rounded-xl text-gray-500 text-sm">
+                No upcoming follow-ups.
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- NO FOLLOW-UP -->
+    <section>
+        <h2 class="text-lg font-semibold text-gray-600 mb-3">No Follow-Up ({{ no_follow|length }})</h2>
+
+        {% if no_follow %}
+            {% for p in no_follow[:5] %}
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-gray-400 mb-3">
+                
+                <div>
+                    <p class="font-medium">{{ p.name }}</p>
+                    <p class="text-sm text-gray-500">{{ p.company or "No company" }}</p>
+                </div>
+
+                <div class="flex gap-2 mt-3">
+
+                    <form method="POST" action="/quick_contact/{{ p.id }}" class="w-1/2">
+                        <button class="w-full bg-green-600 text-white py-1 rounded-lg text-sm">
+                            ✓ Contacted
+                        </button>
+                    </form>
+
+                    <form method="POST" action="/quick_snooze/{{ p.id }}" class="w-1/2">
+                        <button class="w-full bg-blue-600 text-white py-1 rounded-lg text-sm">
+                            Set +1 Day
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if no_follow|length > 5 %}
+                <p class="text-sm text-gray-500">+ {{ no_follow|length - 5 }} more</p>
+            {% endif %}
+
+        {% else %}
+            <div class="bg-white p-4 rounded-xl text-gray-500 text-sm">
+                Everyone has a follow-up.
+            </div>
+        {% endif %}
+    </section>
+
+</main>
+
+</body>
+</html>

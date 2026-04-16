@@ -1,0 +1,79 @@
+[
+    {
+        "id": "36c8058e-0444-4377-9e16-162f893a6805",
+        "name": "John",
+        "status": "new",
+        "notes": "",
+        "created_at": "2026-04-16T08:44:04.700433",
+        "next_action": null,
+        "history": [],
+        "tags": []
+    },
+    {
+        "id": "9a25d991-e1c4-4afc-ac5b-913f816cb818",
+        "name": "Alma",
+        "status": "qualified",
+        "history": [
+            {
+                "status": "new",
+                "timestamp": "2026-04-16T08:46:50.891693"
+            },
+            {
+                "status": "contacted",
+                "timestamp": "2026-04-16T08:47:04.203302"
+            },
+            {
+                "status": "qualified",
+                "timestamp": "2026-04-16T08:47:35.249990"
+            }
+        ],
+        "notes": "",
+        "created_at": "2026-04-16T08:46:50.891693",
+        "next_action": null,
+        "tags": []
+    },
+    {
+        "id": "486d818e-7a6c-4237-b9bf-b971368716e3",
+        "name": "George",
+        "status": "won",
+        "history": [
+            {
+                "status": "new",
+                "timestamp": "2026-04-16T08:48:57.281406"
+            },
+            {
+                "status": "won",
+                "timestamp": "2026-04-16T08:53:30.510163"
+            }
+        ],
+        "notes": "",
+        "created_at": "2026-04-16T08:48:57.281406",
+        "next_action": null,
+        "tags": [],
+        "follow_up": "2026-04-17 13:13"
+    },
+    {
+        "id": "0492c123-1cb4-44ff-95bd-3768317b935f",
+        "name": "Restaurant A",
+        "status": "contacted",
+        "history": [
+            {
+                "status": "new",
+                "timestamp": "2026-04-16T09:49:49.663123"
+            },
+            {
+                "status": "contacted",
+                "timestamp": "2026-04-16T09:50:05.950296"
+            }
+        ],
+        "notes": [
+            {
+                "text": "spoke to chef. interested",
+                "timestamp": "2026-04-16T11:32:09.876921"
+            }
+        ],
+        "next_action": null,
+        "created_at": "2026-04-16T09:49:49.663123",
+        "tags": []
+    }
+]

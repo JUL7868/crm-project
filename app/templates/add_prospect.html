@@ -1,0 +1,109 @@
+<!-- FILE: /app/templates/add_prospect.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Prospect</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <div class="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-sm text-gray-600 hover:text-black">← Back</a>
+            <h1 class="text-lg font-semibold">Add Prospect</h1>
+            <div></div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="max-w-3xl mx-auto px-4 py-6">
+
+        <div class="bg-white p-6 rounded-xl shadow-sm">
+
+            <form method="POST" action="/add_prospect" class="space-y-5">
+
+                <!-- Name -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Name</label>
+                    <input 
+                        type="text" 
+                        name="name" 
+                        required
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g. Juan Pérez"
+                    >
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Company</label>
+                    <input 
+                        type="text" 
+                        name="company"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g. Restaurante XYZ"
+                    >
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Status</label>
+                    <select 
+                        name="status"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="new">new</option>
+                        <option value="contacted">contacted</option>
+                        <option value="qualified">qualified</option>
+                        <option value="won">won</option>
+                        <option value="lost">lost</option>
+                    </select>
+                </div>
+
+                <!-- Next Action -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Next Action</label>
+                    <input 
+                        type="text" 
+                        name="next_action"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g. Call, visit, send proposal"
+                    >
+                </div>
+
+                <!-- Follow-Up -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Follow-Up Date</label>
+                    <input 
+                        type="text" 
+                        name="follow_up"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="YYYY-MM-DD HH:MM"
+                    >
+                </div>
+
+                <!-- Submit -->
+                <div class="pt-2">
+                    <button 
+                        type="submit"
+                        class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+                    >
+                        Create Prospect
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</body>
+</html>
