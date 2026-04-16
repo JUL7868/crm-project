@@ -11,13 +11,13 @@
 <div class="bg-white shadow-sm p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
     <h1 class="text-xl font-semibold">CRM Dashboard</h1>
 
-    <div class="flex gap-2">
-        <a href="/" class="px-3 py-1 bg-gray-200 rounded">Dashboard</a>
-        <a href="/add_prospect" class="px-3 py-1 bg-blue-600 text-white rounded">+ Add Prospect</a>
+    <div class="flex flex-col sm:flex-row gap-2">
+        <a href="/" class="px-3 py-2 bg-gray-200 rounded text-center">Dashboard</a>
+        <a href="/add_prospect" class="px-3 py-2 bg-blue-600 text-white rounded text-center">+ Add Prospect</a>
     </div>
 </div>
 
-<div class="max-w-4xl mx-auto p-4">
+<div class="max-w-md md:max-w-4xl mx-auto p-4">
 
     <!-- OVERDUE -->
     <h2 class="text-lg font-semibold text-red-600 mt-6 mb-2">
@@ -28,7 +28,7 @@
     <div class="bg-white rounded-lg shadow mb-3 border-l-4 border-red-500">
         
         <a href="/prospect/{{ p.id }}" class="block p-4 hover:bg-gray-50 transition">
-            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+            <div class="flex flex-col gap-2">
                 
                 <div>
                     <div class="font-semibold text-lg">{{ p.name }}</div>
@@ -47,7 +47,7 @@
 
         <div class="px-4 pb-3">
             <a href="/quick_snooze/{{ p.id }}"
-               class="text-sm text-blue-600 hover:underline">
+               class="block text-sm text-blue-600 hover:underline">
                Snooze 1 Day
             </a>
         </div>
@@ -68,7 +68,7 @@
     <div class="bg-white rounded-lg shadow mb-3 border-l-4 border-yellow-400">
         
         <a href="/prospect/{{ p.id }}" class="block p-4 hover:bg-gray-50 transition">
-            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+            <div class="flex flex-col gap-2">
                 
                 <div>
                     <div class="font-semibold text-lg">{{ p.name }}</div>
@@ -87,7 +87,7 @@
 
         <div class="px-4 pb-3">
             <a href="/quick_snooze/{{ p.id }}"
-               class="text-sm text-blue-600 hover:underline">
+               class="block text-sm text-blue-600 hover:underline">
                Snooze 1 Day
             </a>
         </div>
@@ -108,7 +108,7 @@
     <div class="bg-white rounded-lg shadow mb-3 border-l-4 border-gray-300">
         
         <a href="/prospect/{{ p.id }}" class="block p-4 hover:bg-gray-50 transition">
-            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+            <div class="flex flex-col gap-2">
                 
                 <div>
                     <div class="font-semibold text-lg">{{ p.name }}</div>
@@ -127,7 +127,7 @@
 
         <div class="px-4 pb-3">
             <a href="/quick_snooze/{{ p.id }}"
-               class="text-sm text-blue-600 hover:underline">
+               class="block text-sm text-blue-600 hover:underline">
                Snooze 1 Day
             </a>
         </div>
