@@ -1,23 +1,61 @@
-# FILE: /app/app.py
-
 from flask import Flask, render_template, request, redirect
-import json
 import os
 import sqlite3
+from datetime import datetime, timedelta
 
-from datetime import datetime
+app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "..", "crm.db")
+
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
+
+# CREATE TABLES (RUNS ON STARTUP)
+def create_tables():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS prospects (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        company TEXT,
+        status TEXT,
+        next_action TEXT,
+        follow_up TEXT
+    );
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS notes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        prospect_id INTEGER,
+        text TEXT,
+        timestamp TEXT
+    );
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+create_tables()
+
+
+def parse_date(date_str):
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+    except:
+        return None
+
+
 def load_prospects_from_db():
     conn = get_db_connection()
-    
     prospects = conn.execute("SELECT * FROM prospects").fetchall()
 
     result = []
@@ -40,33 +78,6 @@ def load_prospects_from_db():
 
     conn.close()
     return result
-
-app = Flask(__name__)
-
-DATA_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'prospects.json')
-
-
-def load_data():
-    if not os.path.exists(DATA_FILE):
-        return []
-    with open(DATA_FILE, 'r') as f:
-        return json.load(f)
-
-
-def save_data(data):
-    with open(DATA_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
-
-
-def generate_id():
-    return str(uuid.uuid4())
-
-
-def parse_date(date_str):
-    try:
-        return datetime.strptime(date_str, "%Y-%m-%d %H:%M")
-    except:
-        return None
 
 
 @app.route("/")
@@ -103,11 +114,26 @@ def dashboard():
     )
 
 
-@app.route("/prospect/<pid>")
+@app.route("/prospect/<int:pid>")
 def prospect(pid):
-    data = load_data()
-    p = next((x for x in data if x["id"] == pid), None)
-    return render_template("prospect.html", p=p)
+    conn = get_db_connection()
+
+    p = conn.execute("SELECT * FROM prospects WHERE id = ?", (pid,)).fetchone()
+
+    notes = conn.execute(
+        "SELECT text, timestamp FROM notes WHERE prospect_id = ? ORDER BY id DESC",
+        (pid,)
+    ).fetchall()
+
+    conn.close()
+
+    if not p:
+        return "Not found", 404
+
+    p_dict = dict(p)
+    p_dict["notes"] = [{"text": n["text"], "timestamp": n["timestamp"]} for n in notes]
+
+    return render_template("prospect.html", p=p_dict)
 
 
 @app.route("/add")
@@ -115,91 +141,101 @@ def add_page():
     return render_template("add_prospect.html")
 
 
-@app.route("/add_prospect", methods=["GET", "POST"])
+@app.route("/add_prospect", methods=["POST"])
 def add_prospect():
-    if request.method == "POST":
-        name = request.form.get("name")
-        company = request.form.get("company")
+    name = request.form.get("name")
+    company = request.form.get("company")
 
-        conn = get_db_connection()
-        conn.execute(
-            "INSERT INTO prospects (name, company, status) VALUES (?, ?, ?)",
-            (name, company, "new")
-        )
-        conn.commit()
-        conn.close()
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO prospects (name, company, status) VALUES (?, ?, ?)",
+        (name, company, "new")
+    )
+    conn.commit()
+    conn.close()
 
-        return redirect("/")
-
-    return render_template("add_prospect.html")
-
-
-@app.route("/add_note/<pid>", methods=["POST"])
-def add_note(pid):
-    data = load_data()
-
-    for p in data:
-        if p["id"] == pid:
-            p.setdefault("notes", []).append({
-                "text": request.form.get("note"),
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M")
-            })
-
-    save_data(data)
-    return redirect(f"/prospect/{pid}")
-
-
-@app.route("/update_status/<pid>", methods=["POST"])
-def update_status(pid):
-    data = load_data()
-    for p in data:
-        if p["id"] == pid:
-            p["status"] = request.form.get("status")
-    save_data(data)
-    return redirect(f"/prospect/{pid}")
-
-
-@app.route("/set_followup/<pid>", methods=["POST"])
-def set_followup(pid):
-    data = load_data()
-    for p in data:
-        if p["id"] == pid:
-            p["follow_up"] = request.form.get("date")
-    save_data(data)
-    return redirect(f"/prospect/{pid}")
-
-
-# QUICK ACTIONS
-
-@app.route("/quick_contact/<pid>", methods=["POST"])
-def quick_contact(pid):
-    data = load_data()
-
-    for p in data:
-        if p["id"] == pid:
-            p["status"] = "contacted"
-            p["follow_up"] = None
-
-    save_data(data)
     return redirect("/")
 
 
-@app.route("/quick_snooze/<pid>", methods=["POST"])
+@app.route("/add_note/<int:pid>", methods=["POST"])
+def add_note(pid):
+    note = request.form.get("note")
+
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO notes (prospect_id, text, timestamp) VALUES (?, ?, ?)",
+        (pid, note, datetime.now().strftime("%Y-%m-%d %H:%M"))
+    )
+    conn.commit()
+    conn.close()
+
+    return redirect(f"/prospect/{pid}")
+
+
+@app.route("/update_status/<int:pid>", methods=["POST"])
+def update_status(pid):
+    status = request.form.get("status")
+
+    conn = get_db_connection()
+    conn.execute(
+        "UPDATE prospects SET status = ? WHERE id = ?",
+        (status, pid)
+    )
+    conn.commit()
+    conn.close()
+
+    return redirect(f"/prospect/{pid}")
+
+
+@app.route("/set_followup/<int:pid>", methods=["POST"])
+def set_followup(pid):
+    date = request.form.get("date")
+
+    conn = get_db_connection()
+    conn.execute(
+        "UPDATE prospects SET follow_up = ? WHERE id = ?",
+        (date, pid)
+    )
+    conn.commit()
+    conn.close()
+
+    return redirect(f"/prospect/{pid}")
+
+
+@app.route("/quick_contact/<int:pid>", methods=["POST"])
+def quick_contact(pid):
+    conn = get_db_connection()
+    conn.execute(
+        "UPDATE prospects SET status = ?, follow_up = NULL WHERE id = ?",
+        ("contacted", pid)
+    )
+    conn.commit()
+    conn.close()
+
+    return redirect("/")
+
+
+@app.route("/quick_snooze/<int:pid>", methods=["POST"])
 def quick_snooze(pid):
-    data = load_data()
+    conn = get_db_connection()
 
-    for p in data:
-        if p["id"] == pid:
-            dt = parse_date(p.get("follow_up"))
+    p = conn.execute("SELECT follow_up FROM prospects WHERE id = ?", (pid,)).fetchone()
 
-            if dt:
-                dt = dt + timedelta(days=1)
-            else:
-                dt = datetime.now() + timedelta(days=1)
+    dt = parse_date(p["follow_up"]) if p and p["follow_up"] else None
 
-            p["follow_up"] = dt.strftime("%Y-%m-%d %H:%M")
+    if dt:
+        dt = dt + timedelta(days=1)
+    else:
+        dt = datetime.now() + timedelta(days=1)
 
-    save_data(data)
+    conn.execute(
+        "UPDATE prospects SET follow_up = ? WHERE id = ?",
+        (dt.strftime("%Y-%m-%d %H:%M"), pid)
+    )
+
+    conn.commit()
+    conn.close()
+
     return redirect("/")
 
 
