@@ -166,25 +166,27 @@ def add_page():
     return render_template("add_prospect.html")
 
 
-@app.route("/add_prospect", methods=["POST"])
+@app.route("/add_prospect", methods=["GET", "POST"])
 def add_prospect():
-    name = request.form.get("name")
-    company = request.form.get("company")
+    if request.method == "POST":
+        name = request.form.get("name")
+        company = request.form.get("company")
 
-    conn = get_db_connection()
-    cur = conn.cursor()
+        conn = get_db_connection()
+        cur = conn.cursor()
 
-    cur.execute(
-        "INSERT INTO prospects (name, company, status) VALUES (%s, %s, %s)",
-        (name, company, "new")
-    )
+        cur.execute(
+            "INSERT INTO prospects (name, company, status) VALUES (%s, %s, %s)",
+            (name, company, "new")
+        )
 
-    conn.commit()
-    cur.close()
-    conn.close()
+        conn.commit()
+        cur.close()
+        conn.close()
 
-    return redirect("/")
+        return redirect("/")
 
+    return render_template("add_prospect.html")
 
 @app.route("/add_note/<int:pid>", methods=["POST"])
 def add_note(pid):
