@@ -3,8 +3,43 @@
 from flask import Flask, render_template, request, redirect
 import json
 import os
-from datetime import datetime, timedelta
-import uuid
+import sqlite3
+
+from datetime import datetime
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "..", "crm.db")
+
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def load_prospects_from_db():
+    conn = get_db_connection()
+    
+    prospects = conn.execute("SELECT * FROM prospects").fetchall()
+
+    result = []
+
+    for p in prospects:
+        notes = conn.execute(
+            "SELECT text, timestamp FROM notes WHERE prospect_id = ? ORDER BY id DESC",
+            (p["id"],)
+        ).fetchall()
+
+        result.append({
+            "id": p["id"],
+            "name": p["name"],
+            "company": p["company"],
+            "status": p["status"],
+            "next_action": p["next_action"],
+            "follow_up": p["follow_up"],
+            "notes": [{"text": n["text"], "timestamp": n["timestamp"]} for n in notes]
+        })
+
+    conn.close()
+    return result
 
 app = Flask(__name__)
 
@@ -36,7 +71,7 @@ def parse_date(date_str):
 
 @app.route("/")
 def dashboard():
-    data = load_data()
+    data = load_prospects_from_db()
     now = datetime.now()
 
     overdue, upcoming, no_follow = [], [], []
@@ -80,24 +115,23 @@ def add_page():
     return render_template("add_prospect.html")
 
 
-@app.route("/add_prospect", methods=["POST"])
+@app.route("/add_prospect", methods=["GET", "POST"])
 def add_prospect():
-    data = load_data()
+    if request.method == "POST":
+        name = request.form.get("name")
+        company = request.form.get("company")
 
-    new = {
-        "id": generate_id(),
-        "name": request.form.get("name"),
-        "company": request.form.get("company"),
-        "status": request.form.get("status") or "new",
-        "next_action": request.form.get("next_action"),
-        "follow_up": request.form.get("follow_up"),
-        "notes": []
-    }
+        conn = get_db_connection()
+        conn.execute(
+            "INSERT INTO prospects (name, company, status) VALUES (?, ?, ?)",
+            (name, company, "new")
+        )
+        conn.commit()
+        conn.close()
 
-    data.append(new)
-    save_data(data)
+        return redirect("/")
 
-    return redirect("/")
+    return render_template("add_prospect.html")
 
 
 @app.route("/add_note/<pid>", methods=["POST"])

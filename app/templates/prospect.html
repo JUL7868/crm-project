@@ -82,9 +82,8 @@
             <h3 class="font-semibold mb-3">Set Follow-Up</h3>
             <form method="POST" action="/set_followup/{{ p.id }}" class="space-y-3">
                 <input 
-                    type="text" 
-                    name="date" 
-                    placeholder="YYYY-MM-DD HH:MM"
+                    type="datetime-local" 
+                    name="date"
                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                 <button 
