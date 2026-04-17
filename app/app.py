@@ -171,13 +171,24 @@ def add_prospect():
     if request.method == "POST":
         name = request.form.get("name")
         company = request.form.get("company")
+        status = request.form.get("status")
+        next_action = request.form.get("next_action")
+        follow_up = request.form.get("follow_up")
+
+        # 🔥 Normalize datetime-local → your existing format
+        if follow_up:
+            follow_up = follow_up.replace("T", " ")
 
         conn = get_db_connection()
         cur = conn.cursor()
 
         cur.execute(
-            "INSERT INTO prospects (name, company, status) VALUES (%s, %s, %s)",
-            (name, company, "new")
+            """
+            INSERT INTO prospects 
+            (name, company, status, next_action, follow_up)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (name, company, status, next_action, follow_up)
         )
 
         conn.commit()
