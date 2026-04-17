@@ -10,8 +10,10 @@ app = Flask(__name__)
 # DATABASE CONNECTION
 # =========================
 def get_db_connection():
-    return psycopg2.connect(os.environ["DATABASE_URL"])
-
+    return psycopg2.connect(
+    os.environ["DATABASE_URL"],
+    sslmode="require"
+)
 
 # =========================
 # CREATE TABLES (RUN ON START)
@@ -44,9 +46,10 @@ def create_tables():
     cur.close()
     conn.close()
 
-
-create_tables()
-
+try:
+    create_tables()
+except Exception as e:
+    print("DB INIT FAILED:", e)
 
 # =========================
 # HELPERS
