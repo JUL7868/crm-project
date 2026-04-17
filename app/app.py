@@ -300,6 +300,22 @@ def quick_snooze(pid):
     cur.close()
     conn.close()
 
+@app.route('/archive_prospect/<int:id>', methods=['POST'])
+def archive_prospect(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE prospects SET archived = TRUE WHERE id = %s", (id,))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return redirect('/')
+
+def get_connection():
+    print(f"DEBUG: Connecting with URL starting with: {os.environ.get('DATABASE_URL')[:20]}...") 
+    return psycopg2.connect(os.environ['DATABASE_URL'])
     return redirect("/")
 
 
