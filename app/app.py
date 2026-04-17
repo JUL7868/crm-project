@@ -65,7 +65,7 @@ def load_prospects_from_db():
     conn = get_db_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM prospects")
+    cur.execute("SELECT * FROM prospects WHERE archived = FALSE")
     prospects = cur.fetchall()
 
     result = []
