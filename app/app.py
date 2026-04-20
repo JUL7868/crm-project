@@ -11,9 +11,10 @@ app = Flask(__name__)
 # =========================
 def get_db_connection():
     return psycopg2.connect(
-    os.environ["DATABASE_URL"],
-    sslmode="require"
-)
+        os.environ["DATABASE_URL"],
+        sslmode="require"
+    )
+
 
 # =========================
 # CREATE TABLES (RUN ON START)
@@ -50,6 +51,7 @@ try:
     create_tables()
 except Exception as e:
     print("DB INIT FAILED:", e)
+
 
 # =========================
 # HELPERS
@@ -178,7 +180,6 @@ def add_prospect():
         next_action = request.form.get("next_action")
         follow_up = request.form.get("follow_up")
 
-        # 🔥 Normalize datetime-local → your existing format
         if follow_up:
             follow_up = follow_up.replace("T", " ")
 
@@ -201,6 +202,7 @@ def add_prospect():
         return redirect("/")
 
     return render_template("add_prospect.html")
+
 
 @app.route("/add_note/<int:pid>", methods=["POST"])
 def add_note(pid):
@@ -300,6 +302,7 @@ def quick_snooze(pid):
     cur.close()
     conn.close()
 
+
 @app.route('/archive_prospect/<int:id>', methods=['POST'])
 def archive_prospect(id):
     conn = get_db_connection()
@@ -313,10 +316,31 @@ def archive_prospect(id):
 
     return redirect('/')
 
-def get_connection():
-    print(f"DEBUG: Connecting with URL starting with: {os.environ.get('DATABASE_URL')[:20]}...") 
-    return psycopg2.connect(os.environ['DATABASE_URL'])
-    return redirect("/")
+
+# =========================
+# ✅ FIXED CLIENTS ROUTE
+# =========================
+@app.route("/clients")
+def clients():
+    q = request.args.get("q", "").strip().lower()
+
+    data = load_prospects_from_db()
+    results = []
+
+    for p in data:
+        name = (p.get("name") or "").lower()
+        company = (p.get("company") or "").lower()
+        follow = (p.get("follow_up") or "").lower()
+
+        if q:
+            if q in name or q in company or q in follow:
+                results.append(p)
+        else:
+            results.append(p)
+
+    results.sort(key=lambda x: x["id"], reverse=True)
+
+    return render_template("clients.html", clients=results, query=q)
 
 
 if __name__ == "__main__":
